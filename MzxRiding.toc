@@ -1,0 +1,44 @@
+## Interface: 120105
+## Title: |cff69ccf0MzxRiding|r Skyriding Action Bar + Mounts
+## Title-zhCN: |cff69ccf0MzxRiding|r 御龙术动作条固定 + 坐骑
+## Title-zhTW: |cff69ccf0MzxRiding|r 飛龍騎術快捷列固定 + 坐騎
+## Title-koKR: |cff69ccf0MzxRiding|r 하늘비행 단축바 + 탈것
+## Title-deDE: |cff69ccf0MzxRiding|r Skyriding-Leiste + Reittiere
+## Title-frFR: |cff69ccf0MzxRiding|r Barre de Skyriding + Montures
+## Title-esES: |cff69ccf0MzxRiding|r Barra de Skyriding + Monturas
+## Title-esMX: |cff69ccf0MzxRiding|r Barra de Skyriding + Monturas
+## Title-ruRU: |cff69ccf0MzxRiding|r Панель Skyriding + Транспорт
+## Title-ptBR: |cff69ccf0MzxRiding|r Barra de Skyriding + Montarias
+## Title-itIT: |cff69ccf0MzxRiding|r Barra di Skyriding + Cavalcature
+## Notes: After login/reload, places Skyriding spells back onto the Skyriding bar in a fixed order so the default UI cannot scramble them. Also adds a draggable Mount button group: functional / random flying / random duo mounts.
+## Notes-zhCN: 登录/重载后自动把御龙术技能按固定顺序放回御龙术动作条，避免暴雪默认 UI 打乱顺序。另含「坐骑」悬浮按钮组：功能坐骑 / 随机飞行坐骑 / 随机双人飞行坐骑。
+## Notes-zhTW: 登入/重載後自動把飛龍騎術技能按固定順序放回快捷列，避免暴雪預設 UI 打亂順序。另含「坐騎」懸浮按鈕組：功能坐騎 / 隨機飛行坐騎 / 隨機雙人飛行坐騎。
+## Notes-koKR: 접속/재접속 후 하늘비행 기술을 고정 순서로 단축바에 배치하여 기본 UI가 순서를 흐트러뜨리지 않게 합니다. 기능/무작위 비행/무작위 2인용 탈것 버튼 그룹도 추가합니다.
+## Notes-deDE: Nach Login/Reload werden Skyriding-Zauber in fester Reihenfolge auf die Skyriding-Leiste gelegt, damit die Standard-UI sie nicht durcheinanderbringt. Fügt außerdem eine verschiebbare Reittier-Button-Gruppe hinzu: Funktions-/zufällige Flug-/zufällige Duo-Reittiere.
+## Notes-frFR: Après connexion/rechargement, replace les sorts de Skyriding sur la barre dans un ordre fixe pour que l'interface par défaut ne les mélange pas. Ajoute aussi un groupe de boutons de montures déplaçable : fonctionnelle / volante aléatoire / duo aléatoire.
+## Notes-esES: Tras iniciar sesión/recargar, coloca los hechizos de Skyriding en la barra en un orden fijo para que la interfaz predeterminada no los desordene. También añade un grupo de botones de monturas arrastrable: funcional / voladora aleatoria / dúo aleatoria.
+## Notes-esMX: Tras iniciar sesión/recargar, coloca los hechizos de Skyriding en la barra en un orden fijo para que la interfaz predeterminada no los desordene. También añade un grupo de botones de monturas arrastrable: funcional / voladora aleatoria / dúo aleatoria.
+## Notes-ruRU: После входа/перезагрузки расставляет заклинания Skyriding на панель в фиксированном порядке, чтобы стандартный интерфейс их не путал. Также добавляет перемещаемую группу кнопок транспорта: функциональный / случайный летающий / случайный на двоих.
+## Notes-ptBR: Após login/recarregar, coloca os feitiços de Skyriding na barra em ordem fixa para que a interface padrão não os bagunce. Também adiciona um grupo de botões de montaria arrastável: funcional / voadora aleatória / dupla aleatória.
+## Notes-itIT: Dopo l'accesso/ricarica, riposiziona gli incantesimi di Skyriding sulla barra in un ordine fisso, così l'interfaccia predefinita non li mescola. Aggiunge anche un gruppo di pulsanti delle cavalcature trascinabile: funzionale / volante casuale / doppia casuale.
+## IconTexture: Interface\AddOns\MzxRiding\icon.tga
+## Version: 1.2.7
+## Author: Local
+## SavedVariables: MzxRidingDB
+## X-Category: Interface Enhancements
+
+Localization.lua
+Locales\zhCN.lua
+Locales\zhTW.lua
+Locales\koKR.lua
+Locales\deDE.lua
+Locales\frFR.lua
+Locales\esES.lua
+Locales\esMX.lua
+Locales\ruRU.lua
+Locales\ptBR.lua
+Locales\itIT.lua
+Core.lua
+Modules\Skyriding.lua
+Modules\Mounts.lua
+Modules\Language.lua
