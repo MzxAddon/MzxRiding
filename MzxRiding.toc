@@ -22,7 +22,7 @@
 ## Notes-ptBR: Após login/recarregar, coloca os feitiços de Skyriding na barra em ordem fixa para que a interface padrão não os bagunce. Também adiciona um grupo de botões de montaria arrastável: funcional / voadora aleatória / dupla aleatória.
 ## Notes-itIT: Dopo l'accesso/ricarica, riposiziona gli incantesimi di Skyriding sulla barra in un ordine fisso, così l'interfaccia predefinita non li mescola. Aggiunge anche un gruppo di pulsanti delle cavalcature trascinabile: funzionale / volante casuale / doppia casuale.
 ## IconTexture: Interface\AddOns\MzxRiding\icon.tga
-## Version: 1.2.7
+## Version: 1.0.0
 ## Author: Local
 ## SavedVariables: MzxRidingDB
 ## X-Category: Interface Enhancements

@@ -9,7 +9,7 @@ local M = CreateFrame("Frame")
 ns.M = M
 _G.MzxRiding = M -- 供 Bindings.xml 的片段调用
 
-M.version = "1.2.7"
+M.version = "1.0.0"
 M.moduleList = {} -- 有序模块列表
 M.modules = {} -- key -> module
 
