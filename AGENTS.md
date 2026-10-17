@@ -4,7 +4,7 @@
 - World of Warcraft *retail*（Midnight 12.1.5）插件 `MzxRiding`。**是 git 仓库**（remote `MzxAddon/MzxRiding`，默认分支 `main`）；除非用户明确要求，否则**不要**执行 `git commit`/`git push`。
 - 发布：`.github/workflows/release.yml`。推送 `v*` 标签或在 Actions 手动 Run（`workflow_dispatch`，可传 version/game_version/changelog/release_type）→ 校验 `## Version` 与标签一致 → 打包 `MzxRiding-<ver>.zip` → GitHub Release → CurseForge 上传。需仓库 Secret `CF_API_TOKEN` + Variable `CF_PROJECT_ID`（1747607）。版本号改动必须同步 `MzxRiding.toc`、`Core.lua` 的 `M.version`、本文件。
 - 文件夹：`D:\Program Files\World of Warcraft\_retail_\Interface\AddOns\MzxRiding\`
-- TOC：`MzxRiding.toc`（Interface 120105，版本 1.0.2，SavedVariables `MzxRidingDB` + SavedVariablesPerCharacter `MzxRidingCharDB`，`## IconTexture: Interface\AddOns\MzxRiding\icon.tga`）
+- TOC：`MzxRiding.toc`（Interface 120105，版本 1.0.3，SavedVariables `MzxRidingDB` + SavedVariablesPerCharacter `MzxRidingCharDB`，`## IconTexture: Interface\AddOns\MzxRiding\Textures\icon.tga`）
 - 加载顺序（按 TOC）：`Localization.lua` → `Locales\*.lua`（zhCN/zhTW/koKR/deDE/frFR/esES/esMX/ruRU/ptBR/itIT） → `Core.lua` → `Modules\Skyriding.lua` → `Modules\Mounts.lua` → `Modules\Language.lua`
 - 三个模块（全部默认开启，`defaultEnabled = true`）：`skyriding`、`mounts`、`language`。由 `Core.lua` 的 `M:RegisterModule(mod)` 管理，`M:IsModuleEnabled(key)`/`M:SetModuleEnabled(key,on)` 控制开关并调用 `mod.OnToggle`。
 - 全局：`_G.MzxRiding = M`；命令：`/mzxr`、`/mzxriding`。
@@ -61,6 +61,13 @@
 - `## IconTexture: Interface\AddOns\MzxRiding\icon.tga`（128×128，32bpp 未压缩 TGA，top-down，type 2）
 - `icon-source.png` 为渲染源（**不得同时保留 `icon.png` 与 `icon.tga`**）。重生成后必须用 `adddisc.ps1` 对 `icon.tga` **烘焙暗色圆盘**（基色 RGB(13,15,20)，半径 `min(w,h)/2-1`），并备份旧版。四角 A=0，边缘抗锯齿正常，**0 绿像素**。
 - 小地图 18×18 降采样时需保证马蹄铁可辨，翅膀为浅色点缀属可接受范围。
+
+## 纹理资源（Textures\）
+- 所有自建纹理统一放 `Textures\`：`icon.tga`（128×128 插件图标，TOC `## IconTexture` 与小地图按钮共用）、`refresh.tga`（32×32 刷新图标，按钮内按 16×16 显示）、`check.tga`（32×32 对勾，列表状态图标按 16×16 显示）。
+- **所有提示里的鼠标图标必须统一走 `M.MouseIcon`（Core.lua），尺寸与左对齐一致，禁止各模块自己写 `|T…UI-TUTORIAL-FRAME…|` 或改尺寸。**
+- 提示行的小鼠标图标用自有纹理 `Textures\mouse-left.tga` / `mouse-right.tga`（28×28 **紧裁剪**，图案内缩为 0，才能与正文左边线严格对齐；暴雪教学图集那一格自带大片透明边，无法贴合）。统一按 12:9（高:宽，原图 22×28 比例）显示，见 `Core.lua` 的 `M.MouseIcon`。
+- 其余自建纹理均为 32bpp 未压缩 top-down TGA（type 2），运行时以 `Interface\AddOns\MzxRiding\Textures\*.tga` 引用，**不加 SetTexCoord**（原图整数倍缩放，最清晰）。
+- 图标源脚本（png2tga_mzx.ps1 / mktextures.ps1）放在临时目录，不入库；打包时 `icon-source.png` 被排除，其余 tga 需随包发布。
 
 ## 代码风格与约定
 - **不要添加任何注释，除非用户明确要求**。

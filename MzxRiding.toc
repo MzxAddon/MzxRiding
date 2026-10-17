@@ -21,8 +21,8 @@
 ## Notes-ruRU: После входа/перезагрузки расставляет заклинания Skyriding на панель в фиксированном порядке, чтобы стандартный интерфейс их не путал. Также добавляет перемещаемую группу кнопок транспорта: функциональный / случайный летающий / случайный на двоих.
 ## Notes-ptBR: Após login/recarregar, coloca os feitiços de Skyriding na barra em ordem fixa para que a interface padrão não os bagunce. Também adiciona um grupo de botões de montaria arrastável: funcional / voadora aleatória / dupla aleatória.
 ## Notes-itIT: Dopo l'accesso/ricarica, riposiziona gli incantesimi di Skyriding sulla barra in un ordine fisso, così l'interfaccia predefinita non li mescola. Aggiunge anche un gruppo di pulsanti delle cavalcature trascinabile: funzionale / volante casuale / doppia casuale.
-## IconTexture: Interface\AddOns\MzxRiding\icon.tga
-## Version: 1.0.2
+## IconTexture: Interface\AddOns\MzxRiding\Textures\icon.tga
+## Version: 1.0.3
 ## Author: Local
 ## SavedVariables: MzxRidingDB
 ## SavedVariablesPerCharacter: MzxRidingCharDB

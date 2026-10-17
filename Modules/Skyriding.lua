@@ -309,18 +309,20 @@ function mod:BuildOptions(p)
 		end
 		row:SetPoint("RIGHT", p, "RIGHT", -12, 0)
 
-		row.down = M.MakeFlatButton(row, 48, 22, L["Down"], function()
+		row.down = M.MakeFlatButton(row, 26, 22, "", function()
 			mod:MovePosition(pos, pos + 1)
 			mod:RefreshOptions()
 			mod:ScheduleApply()
 		end)
+		M.SetButtonIcon(row.down, "Interface\\AddOns\\MzxRiding\\Textures\\arrow-down.tga", 16)
 		row.down:SetPoint("RIGHT", row, "RIGHT", -2, 0)
 
-		row.up = M.MakeFlatButton(row, 48, 22, L["Up"], function()
+		row.up = M.MakeFlatButton(row, 26, 22, "", function()
 			mod:MovePosition(pos, pos - 1)
 			mod:RefreshOptions()
 			mod:ScheduleApply()
 		end)
+		M.SetButtonIcon(row.up, "Interface\\AddOns\\MzxRiding\\Textures\\arrow-up.tga", 16)
 		row.up:SetPoint("RIGHT", row.down, "LEFT", -6, 0)
 
 		p.rows[pos] = row

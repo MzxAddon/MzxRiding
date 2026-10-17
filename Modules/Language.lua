@@ -65,7 +65,7 @@ function mod:RefreshOptions()
 			isCur = (r.code == active)
 		end
 		r:SetSelected(isCur)
-		r.state:SetText(isCur and L["Selected"] or "")
+		M.SetStateIcon(r, isCur)
 	end
 end
 

@@ -823,8 +823,8 @@ function mod:CreateButton()
 			tip:SetText(L["Functional Mount"], 1, 0.82, 0.2)
 			tip:AddLine(L["No listed functional mounts owned"], 0.8, 0.8, 0.8, true)
 		end
-		tip:AddLine(L["Left-click: summon primary mount"], 1, 1, 1)
-		tip:AddLine(L["Right-click: choose primary mount"], 1, 1, 1)
+		tip:AddLine(M.MouseIcon("L") .. L["Summon primary mount"], 1, 1, 1)
+		tip:AddLine(M.MouseIcon("R") .. L["Choose primary mount"], 1, 1, 1)
 	end, function(button)
 		if button == "RightButton" then
 			mod:ShowMenu()
@@ -848,8 +848,8 @@ function mod:CreateButton()
 		if mod.lastFly then
 			tip:AddLine(string.format(L["Last: %s"], mod:MountName(mod.lastFly)), 0.8, 0.8, 0.8)
 		end
-		tip:AddLine(L["Left-click: summon and reroll"], 1, 1, 1)
-		tip:AddLine(L["Right-click: open settings"], 1, 1, 1)
+		tip:AddLine(M.MouseIcon("L") .. L["Summon and reroll"], 1, 1, 1)
+		tip:AddLine(M.MouseIcon("R") .. L["Open settings"], 1, 1, 1)
 	end, function(button)
 		if button == "RightButton" then
 			mod:OpenConfigAt("fly")
@@ -876,8 +876,8 @@ function mod:CreateButton()
 		if pendingDuo then
 			tip:AddLine(string.format(L["Next summon: %s"], mod:MountName(pendingDuo)), 1, 0.82, 0.2)
 		end
-		tip:AddLine(L["Left-click: summon and reroll"], 1, 1, 1)
-		tip:AddLine(L["Right-click: open settings"], 1, 1, 1)
+		tip:AddLine(M.MouseIcon("L") .. L["Summon and reroll"], 1, 1, 1)
+		tip:AddLine(M.MouseIcon("R") .. L["Open settings"], 1, 1, 1)
 	end, function(button)
 		if button == "RightButton" then
 			mod:OpenConfigAt("duo")
@@ -1080,8 +1080,7 @@ function mod:BuildPoolPage(parent, which)
 		row.icon:SetTexture(e.icon or QUESTION_ICON)
 		row.name:SetText(e.name)
 		local sel = page.mod:IsPoolSelected(page.which, e.id)
-		row.state:SetText(sel and L["Selected"] or "")
-		row.state:SetTextColor(0.45, 0.9, 0.45)
+		M.SetStateIcon(row, sel)
 		row:SetSelected(sel)
 	end
 
@@ -1213,8 +1212,8 @@ function mod:BuildFuncPage(parent)
 					GameTooltip:SetOwner(self2, "ANCHOR_RIGHT")
 					GameTooltip:SetText(mod:LabelFor(id), 1, 1, 1)
 					GameTooltip:AddLine(TagsText(e.tags), 0.8, 0.8, 0.8, true)
-					GameTooltip:AddLine(L["Left-click: set as primary mount"], 1, 0.82, 0.2)
-					GameTooltip:AddLine(L["Right-click: summon now"], 0.8, 0.8, 0.8)
+					GameTooltip:AddLine(M.MouseIcon("L") .. L["Set as primary mount"], 1, 0.82, 0.2)
+					GameTooltip:AddLine(M.MouseIcon("R") .. L["Summon now"], 0.8, 0.8, 0.8)
 					GameTooltip:Show()
 				end)
 				row:SetScript("OnLeave", GameTooltip_Hide)
@@ -1312,12 +1311,7 @@ function mod:RefreshOptions()
 			row.icon:SetTexture(info.icon or QUESTION_ICON)
 			row.name:SetText(self:LabelFor(id))
 			local isPrimary = (chosen == id) or (chosen == nil and effective == id)
-			if isPrimary then
-				row.state:SetText(L["Primary"])
-				row.state:SetTextColor(1, 0.82, 0.2)
-			else
-				row.state:SetText("")
-			end
+			M.SetStateIcon(row, isPrimary)
 			row:SetSelected(isPrimary)
 		end
 	end
@@ -1363,14 +1357,23 @@ function mod:BuildOptions(p)
 	refresh:SetPoint("TOPRIGHT", p, "TOPRIGHT", -12, -26)
 	refresh:SetFrameLevel(p:GetFrameLevel() + 3)
 	local refreshTex = refresh:CreateTexture(nil, "ARTWORK")
-	refreshTex:SetAllPoints()
-	refreshTex:SetTexture("Interface\\Buttons\\UI-RefreshButton")
+	refreshTex:SetSize(16, 16)
+	refreshTex:SetPoint("TOPLEFT", 3, -3)
+	refreshTex:SetPoint("BOTTOMRIGHT", -3, 3)
+	refreshTex:SetTexture("Interface\\AddOns\\MzxRiding\\Textures\\refresh.tga")
 	local refreshHl = refresh:CreateTexture(nil, "HIGHLIGHT")
 	refreshHl:SetAllPoints()
 	refreshHl:SetColorTexture(1, 1, 1, 0.08)
 	refresh:SetScript("OnClick", function()
 		mod:RefreshMountLists()
 	end)
+	refresh:SetScript("OnEnter", function(self2)
+		GameTooltip:SetOwner(self2, "ANCHOR_TOP")
+		GameTooltip:SetText(L["Refresh Lists"], 1, 0.82, 0.2)
+		GameTooltip:AddLine(L["Rescan mounts and rebuild all three lists."], 0.8, 0.8, 0.8)
+		GameTooltip:Show()
+	end)
+	refresh:SetScript("OnLeave", GameTooltip_Hide)
 	p.refresh = refresh
 
 	p.pages = {}

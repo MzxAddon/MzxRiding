@@ -9,7 +9,7 @@ local M = CreateFrame("Frame")
 ns.M = M
 _G.MzxRiding = M -- 供 Bindings.xml 的片段调用
 
-M.version = "1.0.2"
+M.version = "1.0.3"
 M.moduleList = {} -- 有序模块列表
 M.modules = {} -- key -> module
 
@@ -229,6 +229,9 @@ function M.ApplyFlatButtonVisual(b)
 	if fs then
 		fs:SetTextColor(style.text[1], style.text[2], style.text[3])
 	end
+	if b.icon then
+		b.icon:SetVertexColor(style.text[1], style.text[2], style.text[3])
+	end
 end
 
 function M.MakeFlatButton(parent, w, h, text, onClick)
@@ -268,6 +271,25 @@ function M.MakeFlatButton(parent, w, h, text, onClick)
 	end
 	M.ApplyFlatButtonVisual(b)
 	return b
+end
+
+-- 给扁平按钮挂一个图标（无文字），原图按整数倍缩放居中显示
+function M.SetButtonIcon(b, texPath, iconSize)
+	local tex = b.icon
+	if not tex then
+		tex = b:CreateTexture(nil, "ARTWORK")
+		b.icon = tex
+	end
+	tex:SetSize(iconSize, iconSize)
+	tex:ClearAllPoints()
+	tex:SetPoint("CENTER")
+	tex:SetTexture(texPath)
+	local fs = b:GetFontString()
+	if fs then
+		fs:SetText("")
+	end
+	M.ApplyFlatButtonVisual(b)
+	return tex
 end
 
 -- 现代扁平关闭按钮：两条交叉细线，悬停变红
@@ -393,6 +415,36 @@ function M.MakeListRow(parent, opts)
 		row:SetScript("OnClick", opts.onClick)
 	end
 	return row
+end
+
+-- 提示行前缀的小鼠标图标：自有紧裁剪纹理，图案内缩为 0，可与正文左边线严格对齐。
+-- 所有提示必须走 M.MouseIcon，保证尺寸与左对齐完全一致，禁止各处另写尺寸。
+local MOUSE_L = "|TInterface\\AddOns\\MzxRiding\\Textures\\mouse-left.tga:12:9|t "
+local MOUSE_R = "|TInterface\\AddOns\\MzxRiding\\Textures\\mouse-right.tga:12:9|t "
+
+function M.MouseIcon(which)
+	if which == "R" then
+		return MOUSE_R
+	end
+	return MOUSE_L
+end
+
+-- 列表右侧状态图标（主选 / 已选 / 当前语言），替代状态文字
+function M.SetStateIcon(row, on, texPath, iconSize)
+	local tex = row.stateIcon
+	if not tex then
+		if row.state then
+			row.state:Hide()
+		end
+		tex = row:CreateTexture(nil, "ARTWORK")
+		tex:SetSize(iconSize or 16, iconSize or 16)
+		tex:SetPoint("RIGHT", row, "RIGHT", -8, 0)
+		tex:SetTexture(texPath or "Interface\\AddOns\\MzxRiding\\Textures\\check.tga")
+		tex:Hide()
+		row.stateIcon = tex
+	end
+	tex:SetShown(on and true or false)
+	return tex
 end
 
 -- 小标题（分区标题）
@@ -614,7 +666,7 @@ end
 
 -- ------------------------------------------------------------------ 小地图按钮
 
-local MINIMAP_ICON = "Interface\\AddOns\\MzxRiding\\icon.tga"
+local MINIMAP_ICON = "Interface\\AddOns\\MzxRiding\\Textures\\icon.tga"
 local MINIMAP_RADIUS = 5
 local MINIMAP_DEFAULT_POS = 135
 
@@ -738,7 +790,7 @@ function M:CreateMinimapButton()
 		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
 		GameTooltip:AddLine("MzxRiding", 1, 1, 1)
 		GameTooltip:AddLine(L["Skyriding action bar fix · Mount buttons"], 0.6, 0.6, 0.6)
-		GameTooltip:AddLine(L["Left-click to open/close settings"], 0.8, 0.8, 0.8)
+		GameTooltip:AddLine(M.MouseIcon("L") .. L["Open/close settings"], 0.8, 0.8, 0.8)
 		GameTooltip:AddLine(L["Drag to move the button"], 0.8, 0.8, 0.8)
 		GameTooltip:Show()
 	end)
