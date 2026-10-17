@@ -173,11 +173,20 @@ jobs:
             --argjson gameVersions "[$VID]" \
             '{changelog:$changelog, changelogType:"markdown", displayName:$displayName, releaseType:$releaseType, gameVersions:$gameVersions}')
 
-          curl -sf -X POST \
-            "https://wow.curseforge.com/api/projects/$CF_PROJECT_ID/upload-file" \
-            -H "X-Api-Token: $CF_API_TOKEN" \
-            -F "metadata=$METADATA" \
-            -F "file=@$ZIP" \
-            -o cf-response.json
+          for attempt in 1 2 3; do
+            CODE=$(curl -sS -o cf-response.json -w '%{http_code}' -X POST \
+              "https://wow.curseforge.com/api/projects/$CF_PROJECT_ID/upload-file" \
+              -H "X-Api-Token: $CF_API_TOKEN" \
+              -F "metadata=$METADATA" \
+              -F "file=@$ZIP" || true)
+            echo "CurseForge upload attempt $attempt -> HTTP $CODE"
+            if [ "$CODE" = "200" ] || [ "$CODE" = "201" ]; then
+              echo "已上传到 CurseForge：$(jq -c '{id, displayName, fileName}' cf-response.json 2>/dev/null || cat cf-response.json)"
+              exit 0
+            fi
+            echo "响应内容：$(head -c 800 cf-response.json)"
+            sleep 10
+          done
 
-          echo "已上传到 CurseForge：$(jq -c '{id, displayName, fileName}' cf-response.json 2>/dev/null || cat cf-response.json)"
+          echo "::error::CurseForge 上传失败（HTTP $CODE），见上方响应内容"
+          exit 1
