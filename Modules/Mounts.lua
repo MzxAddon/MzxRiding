@@ -526,6 +526,7 @@ function mod:BuildMenu()
 	local m = CreateFrame("Frame", "MzxRidingMountMenu", UIParent, "BackdropTemplate")
 	m:SetWidth(MENU_WIDTH)
 	m:SetFrameStrata("FULLSCREEN_DIALOG")
+	m:SetFrameLevel((UIParent:GetFrameLevel() or 0) + 30)
 	m:SetClampedToScreen(true)
 	m:EnableMouse(true)
 	m._setSkin = M.MakeFlatSkin(m, 1)
@@ -955,7 +956,7 @@ local function MakeScrollList(parent)
 	local scroll = CreateFrame("ScrollFrame", nil, parent)
 	scroll:EnableMouseWheel(true)
 
-	local content = CreateFrame("Frame", nil, parent)
+	local content = CreateFrame("Frame", nil, scroll)
 	content:SetSize(1, 1)
 	scroll:SetScrollChild(content)
 
@@ -1278,6 +1279,7 @@ function mod:BuildOptions(p)
 			mod:SelectSub(d.key)
 		end)
 		b.selected = (d.key == "func")
+		b:SetFrameLevel(p:GetFrameLevel() + 3)
 		if i == 1 then
 			b:SetPoint("TOPLEFT", p, "TOPLEFT", 12, -26)
 		else
@@ -1290,6 +1292,7 @@ function mod:BuildOptions(p)
 	p.pages = {}
 
 	local funcFrame = CreateFrame("Frame", nil, p)
+	funcFrame:SetFrameLevel(p:GetFrameLevel() + 1)
 	funcFrame:SetPoint("TOPLEFT", p, "TOPLEFT", 0, -54)
 	funcFrame:SetPoint("BOTTOMRIGHT", p, "BOTTOMRIGHT", 0, 2)
 	funcFrame:SetShown(false)
@@ -1299,6 +1302,7 @@ function mod:BuildOptions(p)
 
 	for _, which in ipairs({ "fly", "duo" }) do
 		local fr = CreateFrame("Frame", nil, p)
+		fr:SetFrameLevel(p:GetFrameLevel() + 1)
 		fr:SetPoint("TOPLEFT", p, "TOPLEFT", 0, -54)
 		fr:SetPoint("BOTTOMRIGHT", p, "BOTTOMRIGHT", 0, 2)
 		fr:SetShown(false)

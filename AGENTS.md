@@ -4,15 +4,21 @@
 - World of Warcraft *retail*（Midnight 12.1.5）插件 `MzxRiding`。**是 git 仓库**（remote `MzxAddon/MzxRiding`，默认分支 `main`）；除非用户明确要求，否则**不要**执行 `git commit`/`git push`。
 - 发布：`.github/workflows/release.yml`。推送 `v*` 标签或在 Actions 手动 Run（`workflow_dispatch`，可传 version/game_version/changelog/release_type）→ 校验 `## Version` 与标签一致 → 打包 `MzxRiding-<ver>.zip` → GitHub Release → CurseForge 上传。需仓库 Secret `CF_API_TOKEN` + Variable `CF_PROJECT_ID`（1747607）。版本号改动必须同步 `MzxRiding.toc`、`Core.lua` 的 `M.version`、本文件。
 - 文件夹：`D:\Program Files\World of Warcraft\_retail_\Interface\AddOns\MzxRiding\`
-- TOC：`MzxRiding.toc`（Interface 120105，版本 1.0.0，SavedVariables `MzxRidingDB`，`## IconTexture: Interface\AddOns\MzxRiding\icon.tga`）
+- TOC：`MzxRiding.toc`（Interface 120105，版本 1.0.1，SavedVariables `MzxRidingDB`，`## IconTexture: Interface\AddOns\MzxRiding\icon.tga`）
 - 加载顺序（按 TOC）：`Localization.lua` → `Locales\*.lua`（zhCN/zhTW/koKR/deDE/frFR/esES/esMX/ruRU/ptBR/itIT） → `Core.lua` → `Modules\Skyriding.lua` → `Modules\Mounts.lua` → `Modules\Language.lua`
 - 三个模块（全部默认开启，`defaultEnabled = true`）：`skyriding`、`mounts`、`language`。由 `Core.lua` 的 `M:RegisterModule(mod)` 管理，`M:IsModuleEnabled(key)`/`M:SetModuleEnabled(key,on)` 控制开关并调用 `mod.OnToggle`。
 - 全局：`_G.MzxRiding = M`；命令：`/mzxr`、`/mzxriding`。
 
+## 边界与红线（用户明确要求，2026-10-16）
+- 主项目 `MzxRiding` **只面向 retail**。**不做**其他客户端的移植/兼容（TBC 周年服、Vanilla、Wrath、Mists 等），也不加多 flavor TOC、`## Interface` 多版本号、能力探测（`Compat.lua` 之类）或 flavor 分支代码。
+- **禁止**在主项目内编写测试代码、探针/诊断代码、临时实验代码。此类代码**必须单独立项**，放在主项目外部（独立文件夹/独立仓库），并对主项目**零影响**：不改动主项目任何文件（含 TOC、AGENTS.md 之外的一切），不共享 Lua 文件、词库、UI 框架（延续"各插件封装各自放各自插件、绝不共用"）。
+- 不做未在真实客户端验证过的改动；不得声称"零错误""零影响"。正式服代码改动必须在正式服实机验证。
+- **TBC 周年服（2.5.5 / Interface 20505）评估结论**：无御龙术与 Bonus Bar 5 → Skyriding 需求不存在；无藏品/坐骑收藏概念、坐骑为背包物品 → Mounts 的池枚举（`C_MountJournal.GetMountIDs`/`isCollected`/`isUsable`）不成立；无功能坐骑（邮箱/修理/商人）且基本无双人坐骑 → func/duo 需求不存在；"飞行"取决于区域+骑术而非坐骑属性 → fly 语义不成立；唯一确定有用的是语言切换（且客户端本身可切）。因此**不做移植**，主项目保持仅 retail。若日后确有需求，另行单独立项评估。
+
 ## 核心（Core.lua）
 - `local ADDON, ns = ...`；`ns.M = M`；`ns.L = L`（来自 `Localization.lua` 的词库回退）。
 - 模块注册表 `self.modules` 与有序列表 `self.moduleList`。`InitDB()` 为每个模块写入 `db.modules[mod.key] = defaultEnabled`，并调用各模块 `mod:EnsureDB(db)`（如果存在）。
-- 配置窗 `MzxRidingConfigFrame`，`GUI_WIDTH = 470`、`GUI_HEIGHT = 544`。扁平皮肤（`M.MakeFlatSkin` + `WHITE8X8` 底/边）、header + 金色 `headerLine`、`M.MakeCloseButton`。标签页按模块分（`f.tabs[mod.key]`），选中切换对应面板 `f.panels[mod.key]`。`M:OpenConfig()`/`M:ToggleConfig()`/`M:RefreshConfig()`/`M:RefreshConfigIfOpen()`。
+- 配置窗 `MzxRidingConfigFrame`，**strata = `FULLSCREEN_DIALOG`**（高于暴雪插件列表/设置面板的 DIALOG，低于 TOOLTIP；原为 `HIGH`，会与暴雪插件列表交错），`GUI_WIDTH = 470`、`GUI_HEIGHT = 544`。扁平皮肤（`M.MakeFlatSkin` + `WHITE8X8` 底/边）、header + 金色 `headerLine`、`M.MakeCloseButton`。标签页按模块分（`f.tabs[mod.key]`），选中切换对应面板 `f.panels[mod.key]`。`M:OpenConfig()`/`M:ToggleConfig()`/`M:RefreshConfig()`/`M:RefreshConfigIfOpen()`。
 - 共享 UI 助手：`M.MakeFlatSkin`、`M.SnapToPixelGrid`（`OnShow` + `OnDragStop` 处理半像素缺线）、`M.ApplyFlatButtonVisual`、`M.MakeFlatButton(w,h,text,onClick)`、`M.MakeCloseButton`、`M.MakeFlatCheckbox(text,onClick)`、`M.MakeSectionLabel(text)`、**`M.MakeListRow(parent, opts)`**（扁平列表行标准，**新列表一律用这个工厂，不得手搓行**）。`M.LIST_ROW_HEIGHT = 40`。`opts = {height, iconSize=22, stripe, singleLine, onClick}`；`singleLine` 名字居中且不创建 `row.sub`；`row:SetSelected(on)` 金色调 + 2px 金色左强调条；`row:SetStripe(on)`。
 - 小地图按钮（`M:CreateMinimapButton`）：31×31，父级 `Minimap`，strata MEDIUM/level 8，`border = Interface\Minimap\MiniMap-TrackingBorder`（136430，50×50），`background = SetColorTexture(0.05,0.06,0.08,0.97)`（12×12 中心，真正黑色圆已烘进 `icon.tga`），`icon = Interface\AddOns\MzxRiding\icon.tga`（18×18 CENTER），高亮 `136477`。可拖动（LibDBIcon 风格：`db.minimapPos` 角度，`GetCursorPosition()/Minimap:GetEffectiveScale()`）。左键打开配置，悬停显示提示。
 - 斜杠：`/mzxr` 空参数→打开配置；`help`、`list`、`on <key>`、`off <key>`。`M:Slash(input)` 处理。
@@ -59,7 +65,7 @@
 - 外观统一（扁平风格、间距、锚定一致），不得破坏原有 UI（不错位、不交错），不得破坏功能（不失灵）。
 - 所有外部 API 调用优先用 WoW 现代 API（C_*），必要时用 pcall 包裹，避免因单个条目报错导致整个列表崩溃。
 - 子标签/按钮宽度约 116–146px，文案一律精简。介绍/提示文本尽量短。
-- **只在用户明确要求时才执行 `git commit`**。当前目录不是 git 仓库。
+- **只在用户明确要求时才执行 `git commit`**。
 
 ## 校验
 - 语法检查可用 `luaparse`（Lua 5.1）；临时脚本位于 `C:\Users\huang\AppData\Local\Temp\opencode\`（`check.js`、`enccheck.js`、`i18ncheck.js` 等）。无需运行测试/构建。

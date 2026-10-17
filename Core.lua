@@ -9,7 +9,7 @@ local M = CreateFrame("Frame")
 ns.M = M
 _G.MzxRiding = M -- 供 Bindings.xml 的片段调用
 
-M.version = "1.0.0"
+M.version = "1.0.1"
 M.moduleList = {} -- 有序模块列表
 M.modules = {} -- key -> module
 
@@ -485,9 +485,11 @@ function M:CreateConfigFrame()
 	f:SetSize(GUI_WIDTH, GUI_HEIGHT)
 	f:SetPoint("CENTER")
 	-- 独立 strata：本窗内部全是子 frame（按钮/滚动条/行），子 frame 有各自的 frame level，
-	-- 若与 MoneyToMailConfigFrame 同在 DIALOG，两个窗口的底都压不住对方的子件 → 两窗交错。
-	-- 放在 HIGH 后子件默认继承本 strata，整棵树成为一个整体，恒在 DIALOG 的 MTM 窗之下。
-	f:SetFrameStrata("HIGH")
+	-- 同 strata 时两个窗口的底都压不住对方的子件 → 交错。
+	-- HIGH 已不够：暴雪的插件列表 / 设置面板也在 HIGH~DIALOG 之间，会与本窗交错。
+	-- 提到 FULLSCREEN_DIALOG（高于 DIALOG、低于 TOOLTIP），整棵树作为一个整体恒在最上。
+	f:SetFrameStrata("FULLSCREEN_DIALOG")
+	f:SetFrameLevel((UIParent:GetFrameLevel() or 0) + 20)
 	f:SetClampedToScreen(true)
 	f:SetMovable(true)
 	f:EnableMouse(true)
@@ -530,6 +532,7 @@ function M:CreateConfigFrame()
 	close:SetScript("OnClick", function()
 		f:Hide()
 	end)
+	pcall(tinsert, UISpecialFrames, "MzxRidingConfigFrame")
 
 	-- 顶部分段标签：每个模块一个
 	f.tabs = {}
@@ -540,6 +543,7 @@ function M:CreateConfigFrame()
 	for i, mod in ipairs(self.moduleList) do
 		local b = M.MakeFlatButton(f, tabW, 24, mod.name or mod.key, nil)
 		b.selected = false
+		b:SetFrameLevel(f:GetFrameLevel() + 3)
 		local key = mod.key
 		b:SetScript("OnClick", function()
 			M:SelectTab(key)
@@ -557,6 +561,7 @@ function M:CreateConfigFrame()
 	-- 内容区必须锚到框体自身的左上角（分段标签那一行下面），
 	-- 千万不要锚到 prev（最后一个标签在右侧，会把内容整体挤到右边）。
 	f.content = CreateFrame("Frame", nil, f)
+	f.content:SetFrameLevel(f:GetFrameLevel() + 1)
 	f.content:SetPoint("TOPLEFT", f, "TOPLEFT", 12, -72)
 	f.content:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -12, 14)
 
