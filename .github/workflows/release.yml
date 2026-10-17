@@ -166,12 +166,22 @@ jobs:
           fi
           echo "CurseForge game version $GV -> id $VID"
 
-          METADATA=$(jq -nc \
-            --rawfile changelog "$CHANGELOG_FILE" \
-            --arg displayName "MzxRiding $VERSION" \
-            --arg releaseType "$RELEASE_TYPE" \
-            --argjson gameVersions "[$VID]" \
-            '{changelog:$changelog, changelogType:"markdown", displayName:$displayName, releaseType:$releaseType, gameVersions:$gameVersions}')
+          METADATA=$(python3 - "$CHANGELOG_FILE" "$VERSION" "$RELEASE_TYPE" "$VID" <<'PY'
+          import json, sys
+          path, version, release_type, vid = sys.argv[1:5]
+          with open(path, encoding="utf-8", errors="replace") as f:
+              changelog = f.read()
+          print(json.dumps({
+              "changelog": changelog,
+              "changelogType": "markdown",
+              "displayName": "MzxRiding " + version,
+              "releaseType": release_type,
+              "gameVersions": [int(vid)],
+          }, ensure_ascii=False))
+          PY
+          )
+          echo "metadata: $METADATA"
+          printf '%s' "$METADATA" | jq -e . >/dev/null
 
           for attempt in 1 2 3; do
             CODE=$(curl -sS -o cf-response.json -w '%{http_code}' -X POST \
