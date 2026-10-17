@@ -187,7 +187,7 @@ jobs:
             CODE=$(curl -sS -o cf-response.json -w '%{http_code}' -X POST \
               "https://wow.curseforge.com/api/projects/$CF_PROJECT_ID/upload-file" \
               -H "X-Api-Token: $CF_API_TOKEN" \
-              -F "metadata=$METADATA" \
+              --form-string "metadata=$METADATA" \
               -F "file=@$ZIP" || true)
             echo "CurseForge upload attempt $attempt -> HTTP $CODE"
             if [ "$CODE" = "200" ] || [ "$CODE" = "201" ]; then
