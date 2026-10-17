@@ -89,7 +89,6 @@ local t = {
 	["Random Duo"] = "무작위 2인용",
 	["Language"] = "언어",
 	["Client default"] = "클라이언트 기본값",
-	["Reloads the UI to apply"] = "적용하려면 UI 재접속",
 }
 
 ns.localeData["koKR"] = t

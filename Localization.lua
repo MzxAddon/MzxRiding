@@ -113,7 +113,6 @@ local en = {
 	"Random Duo",
 	"Language",
 	"Client default",
-	"Reloads the UI to apply",
 }
 
 for i = 1, #en do

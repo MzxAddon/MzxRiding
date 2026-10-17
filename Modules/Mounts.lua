@@ -143,6 +143,16 @@ local function MountInfo(id)
 	return out
 end
 
+-- 已拥有（不看此刻能否召唤：isUsable 在禁坐骑区域会整体变 false）
+local function OwnedOK(id)
+	return MountInfo(id).collected and FactionOK(id)
+end
+
+-- 池内可用：已拥有 + 此刻真的能召唤
+local function PoolOK(id)
+	return OwnedOK(id) and MountInfo(id).usable
+end
+
 local function MountTypeID(id)
 	local cj = J()
 	local fn = cj and cj.GetMountInfoExtraByID
@@ -202,7 +212,7 @@ function mod:CollectedFlying()
 		if ok and type(ids) == "table" then
 			for _, id in ipairs(ids) do
 				local info = MountInfo(id)
-				if info.collected and FactionOK(id) and info.usable and IsFlyingMount(id) then
+				if PoolOK(id) and IsFlyingMount(id) then
 					list[#list + 1] = { id = id, name = info.name or ("#" .. tostring(id)), icon = info.icon }
 				end
 			end
@@ -211,6 +221,10 @@ function mod:CollectedFlying()
 	table.sort(list, function(a, b)
 		return (a.name or "") < (b.name or "")
 	end)
+	-- 禁坐骑区域会扫不出任何可用坐骑：此时保留上一次的结果，不让列表变空
+	if #list == 0 and self._flyCache and #self._flyCache > 0 then
+		return self._flyCache
+	end
 	self._flyCache = list
 	return list
 end
@@ -234,7 +248,7 @@ function mod:CollectedDuo()
 			for _, id in ipairs(ids) do
 				if DUO_MOUNTS[id] then
 					local info = MountInfo(id)
-					if info.collected and FactionOK(id) and info.usable and IsFlyingMount(id) then
+					if PoolOK(id) and IsFlyingMount(id) then
 						list[#list + 1] = { id = id, name = info.name or ("#" .. tostring(id)), icon = info.icon }
 					end
 				end
@@ -244,6 +258,9 @@ function mod:CollectedDuo()
 	table.sort(list, function(a, b)
 		return (a.name or "") < (b.name or "")
 	end)
+	if #list == 0 and self._duoCache and #self._duoCache > 0 then
+		return self._duoCache
+	end
 	self._duoCache = list
 	return list
 end
@@ -259,8 +276,7 @@ end
 local function OwnedList()
 	local list = {}
 	for _, e in ipairs(FUNCTIONAL_MOUNTS) do
-		local m = MountInfo(e.id)
-		if m.collected and FactionOK(e.id) and m.usable then
+		if OwnedOK(e.id) then
 			list[#list + 1] = e
 		end
 	end
@@ -321,8 +337,7 @@ end
 function mod:GetPrimaryId()
 	local chosen = self:GetChosenId()
 	if chosen then
-		local m = MountInfo(chosen)
-		if m.collected and FactionOK(chosen) and m.usable then
+		if OwnedOK(chosen) then
 			return chosen
 		end
 	end
@@ -345,10 +360,6 @@ function mod:SetPrimary(id)
 		M.Print(string.format(L["This mount is restricted to %s characters: %s"], L[MOUNT_FACTION[id] == "Alliance" and "Alliance" or "Horde"], self:LabelFor(id)))
 		return
 	end
-	if not MountInfo(id).usable then
-		M.Print(string.format(L["This mount is not usable on your current character: %s"], self:LabelFor(id)))
-		return
-	end
 	if self.db.primary ~= id then
 		self.db.primary = id
 		M.Print(string.format(L["Primary functional mount set to: %s"], self:LabelFor(id)))
@@ -361,25 +372,24 @@ end
 
 -- which = "fly" | "duo"
 function mod:Pool(which)
-	if not self.db then
+	local store = self.charDb or self.db
+	if not store then
 		return {}
 	end
 	local poolKey = (which == "duo") and "duoPool" or "flyPool"
 	local initKey = (which == "duo") and "duoPoolInit" or "flyPoolInit"
-	if type(self.db[poolKey]) ~= "table" then
-		self.db[poolKey] = {}
+	if type(store[poolKey]) ~= "table" then
+		store[poolKey] = {}
 	end
-	if not self.db[initKey] then
-		self.db[initKey] = true
-		if which == "fly" then
-			-- 随机飞行：默认全选（已拥有的飞行坐骑）
-			for _, e in ipairs(self:PoolList(which)) do
-				self.db[poolKey][e.id] = true
-			end
+	local list = self:PoolList(which)
+	-- 随机飞行 / 随机双人：每角色首次进入默认全选；列表尚未就绪时不写 init，等下次再播种
+	if not store[initKey] and #list > 0 then
+		store[initKey] = true
+		for _, e in ipairs(list) do
+			store[poolKey][e.id] = true
 		end
-		-- 随机双人：默认为空，由玩家在设置里勾选（列表已按 DUO_MOUNTS 白名单收敛为双人飞行坐骑）
 	end
-	return self.db[poolKey]
+	return store[poolKey]
 end
 
 function mod:IsPoolSelected(which, id)
@@ -391,6 +401,10 @@ function mod:TogglePoolEntry(which, id)
 	if pool[id] == true then
 		pool[id] = nil
 	else
+		if not PoolOK(id) then
+			M.Print(string.format(L["This mount is not usable on your current character: %s"], self:LabelFor(id)))
+			return
+		end
 		pool[id] = true
 	end
 	self:RevalidatePending(which)
@@ -403,7 +417,9 @@ function mod:SetPoolAll(which, on)
 	end
 	if on then
 		for _, e in ipairs(self:PoolList(which)) do
-			pool[e.id] = true
+			if PoolOK(e.id) then
+				pool[e.id] = true
+			end
 		end
 	end
 	self:RevalidatePending(which)
@@ -414,7 +430,7 @@ function mod:PickRandom(which, avoid)
 	local pool = self:Pool(which)
 	local ids = {}
 	for _, e in ipairs(self:PoolList(which)) do
-		if pool[e.id] == true then
+		if pool[e.id] == true and PoolOK(e.id) then
 			ids[#ids + 1] = e.id
 		end
 	end
@@ -448,7 +464,7 @@ function mod:SummonRandom(which)
 	local pending = self:GetPendingRandom(which)
 	local pick
 	-- 预选的坐骑若还在池中就直接召唤它；否则重新挑一只
-	if pending and pool[pending] == true then
+	if pending and pool[pending] == true and PoolOK(pending) then
 		pick = pending
 	else
 		pick = self:PickRandom(which, (which == "duo") and self.lastDuo or self.lastFly)
@@ -708,7 +724,7 @@ function mod:UpdateButtonVisibility()
 	if not g then
 		return
 	end
-	if M:IsModuleEnabled(self.key) and self.db and self.db.show then
+	if M:IsModuleEnabled(self.key) then
 		g:Show()
 	else
 		g:Hide()
@@ -877,7 +893,7 @@ end
 
 -- ------------------------------------------------------------------ 模块接口
 
-function mod:EnsureDB(db)
+function mod:EnsureDB(db, charDb)
 	local s = db.mounts
 	if type(s) ~= "table" then
 		s = {}
@@ -892,13 +908,32 @@ function mod:EnsureDB(db)
 	if s.buttonPoint ~= nil and type(s.buttonPoint) ~= "table" then
 		s.buttonPoint = nil
 	end
-	if s.flyPool ~= nil and type(s.flyPool) ~= "table" then
-		s.flyPool = nil
+
+	charDb = charDb or db
+	local c = charDb.mounts
+	if type(c) ~= "table" then
+		c = {}
+		charDb.mounts = c
 	end
-	if s.duoPool ~= nil and type(s.duoPool) ~= "table" then
-		s.duoPool = nil
+	for _, key in ipairs({ "flyPool", "duoPool" }) do
+		if type(s[key]) == "table" and c[key] == nil then
+			c[key] = s[key]
+		end
+		if c[key] ~= nil and type(c[key]) ~= "table" then
+			c[key] = nil
+		end
 	end
+	for _, key in ipairs({ "flyPoolInit", "duoPoolInit" }) do
+		if c[key] == nil and s[key] ~= nil then
+			c[key] = s[key]
+		end
+	end
+	s.flyPool = nil
+	s.duoPool = nil
+	s.flyPoolInit = nil
+	s.duoPoolInit = nil
 	self.db = s
+	self.charDb = c
 end
 
 function mod:OnToggle(on)
@@ -1148,51 +1183,87 @@ function mod:BuildFuncPage(parent)
 	hint:SetNonSpaceWrap(true)
 	hint:SetText(L["Click: set primary · Right-click: summon"])
 
-	local rows = {}
-	local shown = 0
-	for _, e in ipairs(FUNCTIONAL_MOUNTS) do
-		local id = e.id
-		if MountInfo(id).collected and FactionOK(id) and MountInfo(id).usable then
-			shown = shown + 1
-			local row = M.MakeListRow(parent, { height = ROW_HEIGHT, iconSize = LIST_ICON, singleLine = true, stripe = (shown % 2 == 0) })
-			row.mountId = id
-			row:SetPoint("TOPLEFT", hint, "BOTTOMLEFT", 0, -8 - (shown - 1) * ROW_HEIGHT)
-			row:SetPoint("RIGHT", parent, "RIGHT", -LIST_RIGHT, 0)
-			row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-			row:SetScript("OnClick", function(_, button)
-				if button == "RightButton" then
-					mod:SummonById(id)
-				else
-					mod:SetPrimary(id)
-				end
-			end)
-			row:SetScript("OnEnter", function(self2)
-				GameTooltip:SetOwner(self2, "ANCHOR_RIGHT")
-				GameTooltip:SetText(mod:LabelFor(id), 1, 1, 1)
-				GameTooltip:AddLine(TagsText(e.tags), 0.8, 0.8, 0.8, true)
-				GameTooltip:AddLine(L["Left-click: set as primary mount"], 1, 0.82, 0.2)
-				GameTooltip:AddLine(L["Right-click: summon now"], 0.8, 0.8, 0.8)
-				GameTooltip:Show()
-			end)
-			row:SetScript("OnLeave", GameTooltip_Hide)
-			rows[shown] = row
+	local page = { rows = {} }
+
+	page.Rebuild = function()
+		for i = #page.rows, 1, -1 do
+			local old = page.rows[i]
+			old:Hide()
+			old:SetParent(nil)
+			page.rows[i] = nil
+		end
+		local shown = 0
+		for _, e in ipairs(FUNCTIONAL_MOUNTS) do
+			local id = e.id
+			if OwnedOK(id) then
+				shown = shown + 1
+				local row = M.MakeListRow(parent, { height = ROW_HEIGHT, iconSize = LIST_ICON, singleLine = true, stripe = (shown % 2 == 0) })
+				row.mountId = id
+				row:SetPoint("TOPLEFT", hint, "BOTTOMLEFT", 0, -8 - (shown - 1) * ROW_HEIGHT)
+				row:SetPoint("RIGHT", parent, "RIGHT", -LIST_RIGHT, 0)
+				row:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+				row:SetScript("OnClick", function(_, button)
+					if button == "RightButton" then
+						mod:SummonById(id)
+					else
+						mod:SetPrimary(id)
+					end
+				end)
+				row:SetScript("OnEnter", function(self2)
+					GameTooltip:SetOwner(self2, "ANCHOR_RIGHT")
+					GameTooltip:SetText(mod:LabelFor(id), 1, 1, 1)
+					GameTooltip:AddLine(TagsText(e.tags), 0.8, 0.8, 0.8, true)
+					GameTooltip:AddLine(L["Left-click: set as primary mount"], 1, 0.82, 0.2)
+					GameTooltip:AddLine(L["Right-click: summon now"], 0.8, 0.8, 0.8)
+					GameTooltip:Show()
+				end)
+				row:SetScript("OnLeave", GameTooltip_Hide)
+				page.rows[shown] = row
+			end
 		end
 	end
+
+	page.Rebuild()
 
 	local summon = M.MakeFlatButton(parent, (parent:GetWidth() or 440) - LIST_LEFT - LIST_RIGHT, 24, L["Summon Primary Mount"], function()
 		self:SummonPrimary(true)
 	end)
 	summon:SetPoint("BOTTOMLEFT", parent, "BOTTOMLEFT", LIST_LEFT, 4)
 
-	local showBox = M.MakeFlatCheckbox(parent, L["Show floating button group"], function(cb)
-		if self.db then
-			self.db.show = cb:GetChecked() and true or false
-		end
-		self:UpdateButtonVisibility()
-	end)
-	showBox:SetPoint("BOTTOMLEFT", summon, "TOPLEFT", 0, 8)
+	return { rows = page.rows, page = page, summon = summon, hint = hint }
+end
 
-	return { rows = rows, showBox = showBox, summon = summon, hint = hint }
+function mod:RefreshMountLists()
+	self:InvalidateFlyCache()
+	if self.db then
+		for _, which in ipairs({ "fly", "duo" }) do
+			local pool = (self.charDb or self.db)[(which == "duo") and "duoPool" or "flyPool"]
+			if type(pool) == "table" then
+				for id in pairs(pool) do
+					if not OwnedOK(id) then
+						pool[id] = nil
+					end
+				end
+			end
+			self:RevalidatePending(which)
+		end
+	end
+	self:PrimeRandomPicks()
+	self:UpdateButtons()
+	local p = self.optionsFrame
+	if p and p.pages then
+		local func = p.pages.func
+		if func and func.page and func.page.Rebuild then
+			func.page.Rebuild()
+		end
+		for key, page in pairs(p.pages) do
+			if key ~= "func" and page and page.Refresh then
+				page:Refresh()
+			end
+		end
+	end
+	self:RefreshOptions()
+	M:RefreshConfigIfOpen()
 end
 
 function mod:SelectSub(which)
@@ -1232,9 +1303,6 @@ function mod:RefreshOptions()
 		return
 	end
 	local func = p.pages.func
-	if func and func.showBox then
-		func.showBox:SetChecked(self.db and self.db.show and true or false)
-	end
 	if func and func.rows then
 		local chosen = self:GetChosenId()
 		local effective = self:GetPrimaryId()
@@ -1270,7 +1338,8 @@ function mod:BuildOptions(p)
 	p.subTabs = {}
 	p.subKey = "func"
 	local n = #defs
-	local totalW = (p:GetWidth() or 444) - 24
+	local refreshW = SUB_TAB_H
+	local totalW = (p:GetWidth() or 444) - 24 - refreshW - 4
 	local gap = 4
 	local tabW = math.floor((totalW - gap * (n - 1)) / n)
 	local prev
@@ -1288,6 +1357,21 @@ function mod:BuildOptions(p)
 		prev = b
 		p.subTabs[d.key] = b
 	end
+
+	local refresh = CreateFrame("Button", nil, p)
+	refresh:SetSize(refreshW, SUB_TAB_H)
+	refresh:SetPoint("TOPRIGHT", p, "TOPRIGHT", -12, -26)
+	refresh:SetFrameLevel(p:GetFrameLevel() + 3)
+	local refreshTex = refresh:CreateTexture(nil, "ARTWORK")
+	refreshTex:SetAllPoints()
+	refreshTex:SetTexture("Interface\\Buttons\\UI-RefreshButton")
+	local refreshHl = refresh:CreateTexture(nil, "HIGHLIGHT")
+	refreshHl:SetAllPoints()
+	refreshHl:SetColorTexture(1, 1, 1, 0.08)
+	refresh:SetScript("OnClick", function()
+		mod:RefreshMountLists()
+	end)
+	p.refresh = refresh
 
 	p.pages = {}
 

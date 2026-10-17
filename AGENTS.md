@@ -4,7 +4,7 @@
 - World of Warcraft *retail*（Midnight 12.1.5）插件 `MzxRiding`。**是 git 仓库**（remote `MzxAddon/MzxRiding`，默认分支 `main`）；除非用户明确要求，否则**不要**执行 `git commit`/`git push`。
 - 发布：`.github/workflows/release.yml`。推送 `v*` 标签或在 Actions 手动 Run（`workflow_dispatch`，可传 version/game_version/changelog/release_type）→ 校验 `## Version` 与标签一致 → 打包 `MzxRiding-<ver>.zip` → GitHub Release → CurseForge 上传。需仓库 Secret `CF_API_TOKEN` + Variable `CF_PROJECT_ID`（1747607）。版本号改动必须同步 `MzxRiding.toc`、`Core.lua` 的 `M.version`、本文件。
 - 文件夹：`D:\Program Files\World of Warcraft\_retail_\Interface\AddOns\MzxRiding\`
-- TOC：`MzxRiding.toc`（Interface 120105，版本 1.0.1，SavedVariables `MzxRidingDB`，`## IconTexture: Interface\AddOns\MzxRiding\icon.tga`）
+- TOC：`MzxRiding.toc`（Interface 120105，版本 1.0.2，SavedVariables `MzxRidingDB` + SavedVariablesPerCharacter `MzxRidingCharDB`，`## IconTexture: Interface\AddOns\MzxRiding\icon.tga`）
 - 加载顺序（按 TOC）：`Localization.lua` → `Locales\*.lua`（zhCN/zhTW/koKR/deDE/frFR/esES/esMX/ruRU/ptBR/itIT） → `Core.lua` → `Modules\Skyriding.lua` → `Modules\Mounts.lua` → `Modules\Language.lua`
 - 三个模块（全部默认开启，`defaultEnabled = true`）：`skyriding`、`mounts`、`language`。由 `Core.lua` 的 `M:RegisterModule(mod)` 管理，`M:IsModuleEnabled(key)`/`M:SetModuleEnabled(key,on)` 控制开关并调用 `mod.OnToggle`。
 - 全局：`_G.MzxRiding = M`；命令：`/mzxr`、`/mzxriding`。
@@ -39,9 +39,13 @@
 - 功能坐骑列表 `FUNCTIONAL_MOUNTS`（硬编码，8 项）：`3137,2265,1039,2982,2237,460,280,284`，服务标签 `{Mail,Repair,Transmog,Auction House,Vendor}`。坐骑信息用 `pcall(C_MountJournal.GetMountInfoByID)` 获取 `name/icon/isCollected/isUsable/shouldHideOnChar`，`usable = isUsable and not shouldHideOnChar`；未拥有或当前角色不可用的坐骑在设置里显示为「不可用」且不可设为主选。
 - 飞行判定（`IsFlyingMount`）：`isSteadyFlight` 或 `mountTypeID` ∈ `{242,247,248,398,402,407,424,436}`。`CollectedFlying()` 返回已拥有且 `usable` 且可飞行的列表（按名字排序），缓存 `self._flyCache`，`NEW_MOUNT_ADDED`/`InvalidateFlyCache()` 清空。
 - **随机双人**：`DUO_MOUNTS` 为硬编码白名单（Warcraft Wiki Passenger_mounts），`CollectedDuo()` = `DUO_MOUNTS ∩ 已拥有 ∩ usable ∩ 可飞行`。**没有 API 能识别双人坐骑**，因此设置的「随机双人坐骑」池需要手动勾选。
-- 池初始化：`flyPool` **一次性**用所有已拥有飞行坐骑播种（`flyPoolInit` 守护）；`duoPool` **初始为空**。`TogglePoolEntry`/`SetPoolAll(which,on)`、`SummonRandom` 都基于 `PoolList(which)`。
+- 池初始化：`flyPool`/`duoPool` 均**一次性**按 `PoolList(which)` 全选播种（`flyPoolInit`/`duoPoolInit` 守护）；列表为空时不写 init，等下次调用再播种（避免登录时坐骑表未就绪导致空池）。`TogglePoolEntry`/`SetPoolAll(which,on)`、`SummonRandom` 都基于 `PoolList(which)`。
 - 配置子标签 `func/fly/duo`（`BuildOptions` + `SelectSub`）。功能页使用 `M.MakeListRow`（单行，`iconSize=26`）；两个随机页使用自带滚动列表（`MakeScrollList`），行也用 `M.MakeListRow`（单行，`iconSize=26`），右键可直接召唤 `mod:SummonById(id)`，左键沿用原行为。底部控件：全选/全不选/随机召唤一只。
-- `db.mounts = { primary, show=true, buttonPoint, flyPool={[id]=true}, duoPool={[id]=true}, flyPoolInit, duoPoolInit }`，`buttonPoint` 默认 `{ "CENTER", "UIParent", "CENTER", 0, 0 }`，`OnDragStop` + `M.SnapToPixelGrid` 后保存。
+- 账号级 `MzxRidingDB`：`db.modules`、`db.skyriding`、`db.locale`、`db.minimapPos`、`db.mounts = { primary, show, buttonPoint }`。
+- 角色级 `MzxRidingCharDB`：`charDb.mounts = { flyPool={[id]=true}, duoPool={[id]=true}, flyPoolInit, duoPoolInit }`（随机池按角色存，阵营/种族不同互不污染；每角色首次进入 `flyPool` 与 `duoPool` 均默认全选已拥有可用坐骑）。
+- `mod:EnsureDB(db, charDb)` 由 Core 同时传入两张表；`Mounts` 用 `self.db`（账号）与 `self.charDb`（角色）分别存放，首次升级会把账号级旧池迁移到当前角色后清空旧字段。
+- `mod.alwaysOn = true` 表示该模块无运行时开关（如 `language`）：不建「启用本模块」勾选框、`IsModuleEnabled` 恒真、`SetModuleEnabled` 忽略、不写 `db.modules`。
+- `buttonPoint` 默认 `{ "CENTER", "UIParent", "CENTER", 0, 0 }`，`OnDragStop` + `M.SnapToPixelGrid` 后保存。
 
 ## 模块：Language（Modules\Language.lua）
 - `key = "language"`，`nameKey = "Language"`，`defaultEnabled = true`。

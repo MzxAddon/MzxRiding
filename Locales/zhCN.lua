@@ -102,7 +102,6 @@ local t = {
 	["Random Duo"] = "随机双人坐骑",
 	["Language"] = "语言",
 	["Client default"] = "跟随客户端",
-	["Reloads the UI to apply"] = "重载界面后生效",
 }
 
 ns.localeData["zhCN"] = t

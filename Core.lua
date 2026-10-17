@@ -9,7 +9,7 @@ local M = CreateFrame("Frame")
 ns.M = M
 _G.MzxRiding = M -- 供 Bindings.xml 的片段调用
 
-M.version = "1.0.1"
+M.version = "1.0.2"
 M.moduleList = {} -- 有序模块列表
 M.modules = {} -- key -> module
 
@@ -28,16 +28,23 @@ function M:RegisterModule(mod)
 end
 
 function M:IsModuleEnabled(key)
+	local mod = self.modules[key]
+	if mod and mod.alwaysOn then
+		return true
+	end
 	return (self.db and self.db.modules and self.db.modules[key]) and true or false
 end
 
 function M:SetModuleEnabled(key, on)
+	local mod = self.modules[key]
+	if mod and mod.alwaysOn then
+		return
+	end
 	if not self.db then
 		return
 	end
 	on = on and true or false
 	self.db.modules[key] = on
-	local mod = self.modules[key]
 	if mod and mod.OnToggle then
 		local ok, err = pcall(mod.OnToggle, mod, on)
 		if not ok then
@@ -76,18 +83,29 @@ local function EnsureDB()
 end
 M.EnsureDB = EnsureDB
 
+local function EnsureCharDB()
+	local cdb = MzxRidingCharDB
+	if type(cdb) ~= "table" then
+		cdb = {}
+		MzxRidingCharDB = cdb
+	end
+	return cdb
+end
+M.EnsureCharDB = EnsureCharDB
+
 function M:InitDB()
 	self.db = EnsureDB()
+	local charDb = EnsureCharDB()
 	-- db.locale 只保留已知语言代码；空/"AUTO"/陈旧值一律视为「跟随客户端」
 	if self.db.locale and not (ns.knownLocales and ns.knownLocales[self.db.locale]) then
 		self.db.locale = nil
 	end
 	for _, mod in ipairs(self.moduleList) do
-		if self.db.modules[mod.key] == nil then
+		if not mod.alwaysOn and self.db.modules[mod.key] == nil then
 			self.db.modules[mod.key] = mod.defaultEnabled and true or false
 		end
 		if mod.EnsureDB then
-			pcall(mod.EnsureDB, mod, self.db)
+			pcall(mod.EnsureDB, mod, self.db, charDb)
 		end
 	end
 end
@@ -422,11 +440,13 @@ function M:GetModulePanel(mod)
 	local f = self.configFrame
 	local p = CreateFrame("Frame", nil, f.content)
 	p:SetAllPoints(f.content)
-	local cb = M.MakeFlatCheckbox(p, L["Enable this module"], function(cbSelf)
-		self:SetModuleEnabled(mod.key, cbSelf:GetChecked())
-	end)
-	cb:SetPoint("TOPLEFT", p, "TOPLEFT", 12, -2)
-	p.enable = cb
+	if not mod.alwaysOn then
+		local cb = M.MakeFlatCheckbox(p, L["Enable this module"], function(cbSelf)
+			self:SetModuleEnabled(mod.key, cbSelf:GetChecked())
+		end)
+		cb:SetPoint("TOPLEFT", p, "TOPLEFT", 12, -2)
+		p.enable = cb
+	end
 	-- 必须先赋值 optionsFrame，BuildOptions 内部（如 Mounts 的 SelectSub）会读它
 	mod.optionsFrame = p
 	if mod.BuildOptions then

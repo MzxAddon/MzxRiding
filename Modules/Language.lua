@@ -7,6 +7,7 @@ local mod = {
 	name = L["Language"],
 	nameKey = "Language",
 	defaultEnabled = true,
+	alwaysOn = true,
 }
 
 M:RegisterModule(mod)
@@ -27,7 +28,7 @@ local LOCALES = {
 }
 
 local ROW_H = 28
-local TOP = -24
+local TOP = -10
 
 local rows = {}
 
@@ -71,13 +72,6 @@ end
 function mod:BuildOptions(p)
 	rows = {}
 
-	local hint = p:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
-	hint:SetPoint("TOPLEFT", p, "TOPLEFT", 12, TOP)
-	hint:SetWidth((p:GetWidth() or 444) - 24)
-	hint:SetJustifyH("LEFT")
-	hint:SetNonSpaceWrap(true)
-	hint:SetText(L["Reloads the UI to apply"])
-
 	local defs = { { code = "AUTO", name = L["Client default"] } }
 	for i = 1, #LOCALES do
 		defs[#defs + 1] = LOCALES[i]
@@ -105,7 +99,7 @@ function mod:BuildOptions(p)
 		r.name:SetText(d.name)
 		r.state:SetTextColor(0.45, 0.9, 0.45)
 		if i == 1 then
-			r:SetPoint("TOPLEFT", hint, "BOTTOMLEFT", 0, -8)
+			r:SetPoint("TOPLEFT", p, "TOPLEFT", 12, TOP)
 		else
 			r:SetPoint("TOPLEFT", prev, "BOTTOMLEFT", 0, -2)
 		end

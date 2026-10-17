@@ -89,7 +89,6 @@ local t = {
 	["Random Duo"] = "Dupla aleatória",
 	["Language"] = "Idioma",
 	["Client default"] = "Padrão do cliente",
-	["Reloads the UI to apply"] = "Recarrega a interface ao aplicar",
 }
 
 ns.localeData["ptBR"] = t
