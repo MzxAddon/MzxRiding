@@ -15,7 +15,6 @@ local en = {
 	"Module %s error: %s",
 	"Module %s options error: %s",
 	"Skyriding action bar fix · Mount buttons",
-	"Drag to move the button",
 	-- 斜杠命令
 	"Commands:",
 	"Open settings",

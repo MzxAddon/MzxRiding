@@ -4,7 +4,7 @@
 - World of Warcraft *retail*（Midnight 12.1.5）插件 `MzxRiding`。**是 git 仓库**（remote `MzxAddon/MzxRiding`，默认分支 `main`）；除非用户明确要求，否则**不要**执行 `git commit`/`git push`。
 - 发布：`.github/workflows/release.yml`。推送 `v*` 标签或在 Actions 手动 Run（`workflow_dispatch`，可传 version/game_version/changelog/release_type）→ 校验 `## Version` 与标签一致 → 打包 `MzxRiding-<ver>.zip` → GitHub Release → CurseForge 上传。需仓库 Secret `CF_API_TOKEN` + Variable `CF_PROJECT_ID`（1747607）。版本号改动必须同步 `MzxRiding.toc`、`Core.lua` 的 `M.version`、本文件。
 - 文件夹：`D:\Program Files\World of Warcraft\_retail_\Interface\AddOns\MzxRiding\`
-- TOC：`MzxRiding.toc`（Interface 120105，版本 1.0.3，SavedVariables `MzxRidingDB` + SavedVariablesPerCharacter `MzxRidingCharDB`，`## IconTexture: Interface\AddOns\MzxRiding\Textures\icon.tga`）
+- TOC：`MzxRiding.toc`（Interface 120105，版本 1.0.4，SavedVariables `MzxRidingDB` + SavedVariablesPerCharacter `MzxRidingCharDB`，`## IconTexture: Interface\AddOns\MzxRiding\Textures\icon.tga`）
 - 加载顺序（按 TOC）：`Localization.lua` → `Locales\*.lua`（zhCN/zhTW/koKR/deDE/frFR/esES/esMX/ruRU/ptBR/itIT） → `Core.lua` → `Modules\Skyriding.lua` → `Modules\Mounts.lua` → `Modules\Language.lua`
 - 三个模块（全部默认开启，`defaultEnabled = true`）：`skyriding`、`mounts`、`language`。由 `Core.lua` 的 `M:RegisterModule(mod)` 管理，`M:IsModuleEnabled(key)`/`M:SetModuleEnabled(key,on)` 控制开关并调用 `mod.OnToggle`。
 - 全局：`_G.MzxRiding = M`；命令：`/mzxr`、`/mzxriding`。

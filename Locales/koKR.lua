@@ -11,7 +11,6 @@ local t = {
 	["Module %s error: %s"] = "모듈 %s 오류: %s",
 	["Module %s options error: %s"] = "모듈 %s 설정 오류: %s",
 	["Skyriding action bar fix · Mount buttons"] = "하늘비행 단축바 고정 · 탈것 버튼",
-	["Drag to move the button"] = "드래그하여 버튼 이동",
 	["Commands:"] = "명령어:",
 	["Open settings"] = "설정 열기",
 	["  /mzxr                Open settings"] = "  /mzxr                설정 열기",

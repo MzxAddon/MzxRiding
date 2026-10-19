@@ -9,7 +9,7 @@ local M = CreateFrame("Frame")
 ns.M = M
 _G.MzxRiding = M -- 供 Bindings.xml 的片段调用
 
-M.version = "1.0.3"
+M.version = "1.0.4"
 M.moduleList = {} -- 有序模块列表
 M.modules = {} -- key -> module
 
@@ -791,7 +791,6 @@ function M:CreateMinimapButton()
 		GameTooltip:AddLine("MzxRiding", 1, 1, 1)
 		GameTooltip:AddLine(L["Skyriding action bar fix · Mount buttons"], 0.6, 0.6, 0.6)
 		GameTooltip:AddLine(M.MouseIcon("L") .. L["Open/close settings"], 0.8, 0.8, 0.8)
-		GameTooltip:AddLine(L["Drag to move the button"], 0.8, 0.8, 0.8)
 		GameTooltip:Show()
 	end)
 	b:SetScript("OnLeave", GameTooltip_Hide)

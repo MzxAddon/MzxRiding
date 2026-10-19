@@ -11,7 +11,6 @@ local t = {
 	["Module %s error: %s"] = "Erro do módulo %s: %s",
 	["Module %s options error: %s"] = "Erro de opções do módulo %s: %s",
 	["Skyriding action bar fix · Mount buttons"] = "Barra de Skyriding fixa · Botões de montaria",
-	["Drag to move the button"] = "Arraste para mover o botão",
 	["Commands:"] = "Comandos:",
 	["Open settings"] = "Abrir configurações",
 	["  /mzxr                Open settings"] = "  /mzxr                Abrir configurações",

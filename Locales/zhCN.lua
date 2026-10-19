@@ -11,7 +11,6 @@ local t = {
 	["Module %s error: %s"] = "模块 %s 出错：%s",
 	["Module %s options error: %s"] = "模块 %s 设置界面出错：%s",
 	["Skyriding action bar fix · Mount buttons"] = "御龙术动作条固定 · 坐骑按钮组",
-	["Drag to move the button"] = "拖动可移动按钮",
 	["Commands:"] = "命令：",
 	["Open settings"] = "打开设置界面",
 	["Open/close settings"] = "开关设置界面",

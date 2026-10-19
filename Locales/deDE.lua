@@ -11,7 +11,6 @@ local t = {
 	["Module %s error: %s"] = "Modul %s Fehler: %s",
 	["Module %s options error: %s"] = "Modul %s Optionen-Fehler: %s",
 	["Skyriding action bar fix · Mount buttons"] = "Skyriding-Leiste fixieren · Reittier-Buttons",
-	["Drag to move the button"] = "Ziehen, um den Button zu verschieben",
 	["Commands:"] = "Befehle:",
 	["Open settings"] = "Einstellungen öffnen",
 	["  /mzxr                Open settings"] = "  /mzxr                Einstellungen öffnen",

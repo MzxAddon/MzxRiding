@@ -11,7 +11,6 @@ local t = {
 	["Module %s error: %s"] = "模組 %s 發生錯誤：%s",
 	["Module %s options error: %s"] = "模組 %s 設定介面發生錯誤：%s",
 	["Skyriding action bar fix · Mount buttons"] = "飛龍騎術快捷列固定 · 坐騎按鈕組",
-	["Drag to move the button"] = "拖曳可移動按鈕",
 	["Commands:"] = "指令：",
 	["Open settings"] = "開啟設定介面",
 	["  /mzxr                Open settings"] = "  /mzxr                開啟設定介面",

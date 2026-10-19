@@ -1,15 +1,15 @@
 ## Interface: 120105
-## Title: |cff69ccf0MzxRiding|r Skyriding Action Bar + Mounts
-## Title-zhCN: |cff69ccf0MzxRiding|r 御龙术动作条固定 + 坐骑
-## Title-zhTW: |cff69ccf0MzxRiding|r 飛龍騎術快捷列固定 + 坐騎
-## Title-koKR: |cff69ccf0MzxRiding|r 하늘비행 단축바 + 탈것
-## Title-deDE: |cff69ccf0MzxRiding|r Skyriding-Leiste + Reittiere
-## Title-frFR: |cff69ccf0MzxRiding|r Barre de Skyriding + Montures
-## Title-esES: |cff69ccf0MzxRiding|r Barra de Skyriding + Monturas
-## Title-esMX: |cff69ccf0MzxRiding|r Barra de Skyriding + Monturas
-## Title-ruRU: |cff69ccf0MzxRiding|r Панель Skyriding + Транспорт
-## Title-ptBR: |cff69ccf0MzxRiding|r Barra de Skyriding + Montarias
-## Title-itIT: |cff69ccf0MzxRiding|r Barra di Skyriding + Cavalcature
+## Title: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r Skyriding Action Bar + Mounts
+## Title-zhCN: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r 御龙术动作条固定 + 坐骑
+## Title-zhTW: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r 飛龍騎術快捷列固定 + 坐騎
+## Title-koKR: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r 하늘비행 단축바 + 탈것
+## Title-deDE: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r Skyriding-Leiste + Reittiere
+## Title-frFR: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r Barre de Skyriding + Montures
+## Title-esES: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r Barra de Skyriding + Monturas
+## Title-esMX: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r Barra de Skyriding + Monturas
+## Title-ruRU: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r Панель Skyriding + Транспорт
+## Title-ptBR: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r Barra de Skyriding + Montarias
+## Title-itIT: |CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r Barra di Skyriding + Cavalcature
 ## Notes: After login/reload, places Skyriding spells back onto the Skyriding bar in a fixed order so the default UI cannot scramble them. Also adds a draggable Mount button group: functional / random flying / random duo mounts.
 ## Notes-zhCN: 登录/重载后自动把御龙术技能按固定顺序放回御龙术动作条，避免暴雪默认 UI 打乱顺序。另含「坐骑」悬浮按钮组：功能坐骑 / 随机飞行坐骑 / 随机双人飞行坐骑。
 ## Notes-zhTW: 登入/重載後自動把飛龍騎術技能按固定順序放回快捷列，避免暴雪預設 UI 打亂順序。另含「坐騎」懸浮按鈕組：功能坐騎 / 隨機飛行坐騎 / 隨機雙人飛行坐騎。
@@ -22,7 +22,7 @@
 ## Notes-ptBR: Após login/recarregar, coloca os feitiços de Skyriding na barra em ordem fixa para que a interface padrão não os bagunce. Também adiciona um grupo de botões de montaria arrastável: funcional / voadora aleatória / dupla aleatória.
 ## Notes-itIT: Dopo l'accesso/ricarica, riposiziona gli incantesimi di Skyriding sulla barra in un ordine fisso, così l'interfaccia predefinita non li mescola. Aggiunge anche un gruppo di pulsanti delle cavalcature trascinabile: funzionale / volante casuale / doppia casuale.
 ## IconTexture: Interface\AddOns\MzxRiding\Textures\icon.tga
-## Version: 1.0.3
+## Version: 1.0.4
 ## Author: Local
 ## SavedVariables: MzxRidingDB
 ## SavedVariablesPerCharacter: MzxRidingCharDB
