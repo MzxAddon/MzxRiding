@@ -143,7 +143,7 @@ function mod:Apply(verbose, force)
 	end
 	if not force and self:IsConfigured() then
 		if verbose then
-			M.Print(L["Already matches the configuration; no changes needed."])
+			M.Print(L["Applied"])
 		end
 		return
 	end
@@ -188,7 +188,9 @@ function mod:Apply(verbose, force)
 	end
 
 	if verbose then
-		M.Print(string.format(L["Placed %d spells into slots %d-%d."], placed, base, base + BAR_SIZE - 1))
+		if placed > 0 then
+			M.Print(L["Applied"])
+		end
 		if #missing > 0 then
 			M.Print(string.format(L["Not learned (skipped): %s"], table.concat(missing, ", ")))
 		end

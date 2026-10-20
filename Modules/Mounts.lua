@@ -353,16 +353,16 @@ function mod:SetPrimary(id)
 		return
 	end
 	if not MountInfo(id).collected then
-		M.Print(string.format(L["You do not own this mount, cannot set as primary: %s"], self:LabelFor(id)))
+		M.Print(string.format(L["Not owned %s"], M.Accent(self:LabelFor(id))))
 		return
 	end
 	if not FactionOK(id) then
-		M.Print(string.format(L["This mount is restricted to %s characters: %s"], L[MOUNT_FACTION[id] == "Alliance" and "Alliance" or "Horde"], self:LabelFor(id)))
+		M.Print(string.format(L["%s only %s"], L[MOUNT_FACTION[id] == "Alliance" and "Alliance" or "Horde"], M.Accent(self:LabelFor(id))))
 		return
 	end
 	if self.db.primary ~= id then
 		self.db.primary = id
-		M.Print(string.format(L["Primary functional mount set to: %s"], self:LabelFor(id)))
+		M.Print(string.format(L["Primary mount %s"], M.Accent(self:LabelFor(id))))
 	end
 	self:UpdateButtons()
 	M:RefreshConfigIfOpen()
@@ -402,7 +402,7 @@ function mod:TogglePoolEntry(which, id)
 		pool[id] = nil
 	else
 		if not PoolOK(id) then
-			M.Print(string.format(L["This mount is not usable on your current character: %s"], self:LabelFor(id)))
+			M.Print(string.format(L["Not usable here %s"], M.Accent(self:LabelFor(id))))
 			return
 		end
 		pool[id] = true
@@ -470,7 +470,7 @@ function mod:SummonRandom(which)
 		pick = self:PickRandom(which, (which == "duo") and self.lastDuo or self.lastFly)
 	end
 	if not pick then
-		M.Print(string.format(L["%s: You have not selected any mounts. Please choose in settings."], label))
+		M.Print(string.format(L["%s none selected"], label))
 		return
 	end
 
@@ -482,9 +482,9 @@ function mod:SummonRandom(which)
 		else
 			self.lastFly = pick
 		end
-		M.Print(string.format(L["Randomly summoned: %s"], name))
+		M.Print(string.format(L["Random summon %s"], M.Accent(name)))
 	else
-		M.Print(string.format(L["%s: %s"], err or L["Summon failed"], name))
+		M.Print(string.format(L["%s %s"], err or L["Summon failed"], M.Accent(name)))
 	end
 	-- 召唤后立刻预选下一只，按钮图标随之更新
 	self:NextRandom(which)
@@ -645,17 +645,17 @@ end
 function mod:SummonPrimary(verbose)
 	local id = self:GetPrimaryId()
 	if not id then
-		M.Print(L["You do not own any listed functional mounts."])
+		M.Print(L["No owned functional mounts"])
 		return
 	end
 	local label = self:LabelFor(id)
 	local ok, err = SummonMount(id)
 	if ok then
 		if verbose then
-			M.Print(string.format(L["Summoned: %s"], label))
+			M.Print(string.format(L["Summon %s"], M.Accent(label)))
 		end
 	else
-		M.Print(string.format(L["%s: %s"], err or L["Summon failed"], label))
+		M.Print(string.format(L["%s %s"], err or L["Summon failed"], M.Accent(label)))
 	end
 end
 
@@ -666,9 +666,9 @@ function mod:SummonById(id)
 	local label = self:LabelFor(id)
 	local ok, err = SummonMount(id)
 	if ok then
-		M.Print(string.format(L["Summoned: %s"], label))
+		M.Print(string.format(L["Summon %s"], M.Accent(label)))
 	else
-		M.Print(string.format(L["%s: %s"], err or L["Summon failed"], label))
+		M.Print(string.format(L["%s %s"], err or L["Summon failed"], M.Accent(label)))
 	end
 end
 

@@ -9,13 +9,23 @@ local M = CreateFrame("Frame")
 ns.M = M
 _G.MzxRiding = M -- 供 Bindings.xml 的片段调用
 
-M.version = "1.0.4"
+M.version = "1.0.5"
 M.moduleList = {} -- 有序模块列表
 M.modules = {} -- key -> module
 
-local PREFIX = "|cff69ccf0MzxRiding|r "
+local BRAND_NAME = "|CFF8845ECM|r|CFFA037E9z|r|CFFA435E8x|r|CFFB32DE6R|r|CFFBC26E5i|r|CFFCB1EE3d|r|CFFDD14E0i|r|CFFEB0BDDn|r|CFFFB04DAg|r"
+M.BrandName = BRAND_NAME
+
+function M.Brand(text)
+	return (tostring(text):gsub("MzxRiding", BRAND_NAME))
+end
+
+function M.Accent(text)
+	return "|cffffd200" .. tostring(text) .. "|r"
+end
+
 local function Print(msg)
-	print(PREFIX .. tostring(msg))
+	print(BRAND_NAME .. " " .. tostring(msg))
 end
 M.Print = Print
 
@@ -450,7 +460,7 @@ end
 -- 小标题（分区标题）
 function M.MakeSectionLabel(parent, text)
 	local fs = parent:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-	fs:SetText("|cffffd200" .. text .. "|r")
+	fs:SetText(M.Accent(text))
 	fs:SetJustifyH("LEFT")
 	return fs
 end
@@ -597,7 +607,7 @@ function M:CreateConfigFrame()
 
 	local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormal")
 	title:SetPoint("LEFT", header, "LEFT", 12, 0)
-	title:SetText(L["MzxRiding Settings"])
+	title:SetText(M.Brand(L["MzxRiding Settings"]))
 
 	local close = M.MakeCloseButton(f)
 	close:SetPoint("TOPRIGHT", -6, -6)
@@ -788,7 +798,7 @@ function M:CreateMinimapButton()
 
 	b:SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-		GameTooltip:AddLine("MzxRiding", 1, 1, 1)
+		GameTooltip:AddLine(M.BrandName, 1, 1, 1)
 		GameTooltip:AddLine(L["Skyriding action bar fix · Mount buttons"], 0.6, 0.6, 0.6)
 		GameTooltip:AddLine(M.MouseIcon("L") .. L["Open/close settings"], 0.8, 0.8, 0.8)
 		GameTooltip:Show()
